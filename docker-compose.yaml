@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+
+  readersden-frontend:
+    build:
+      context: https://github.com/tanmayvaij/readersden_frontend.git
+    container_name: readersden-frontend
+    ports:
+      - 8080:8080
+    environment:
+      - REACT_APP_BACKEND_URL=http://readersden-backend:${BACKEND_EXPOSE_PORT}
+    depends_on:
+      - readersden-backend
+    restart: unless-stopped
+
+  readersden-backend:
+    build:
+      context: https://github.com/tanmayvaij/readersden_backend.git
+    container_name: readersden-backend
+    ports:
+      - ${BACKEND_EXPOSE_PORT}:${BACKEND_EXPOSE_PORT}
+    environment:
+      - MONGO_URI=mongodb://db:27017/readersden
+      - BACKEND_EXPOSE_PORT=${BACKEND_EXPOSE_PORT}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: mongo
+    container_name: db
+    ports:
+      - 27017:27017
+    restart: unless-stopped
+      
+networks:
+  default:
+    name: readersden-stack-network
+    
